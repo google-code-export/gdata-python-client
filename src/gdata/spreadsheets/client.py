@@ -414,6 +414,43 @@ class SpreadsheetsClient(gdata.client.GDClient):
 
   GetCell = get_cell
 
+  def update_cell(self, spreadsheet_key, worksheet_id, row_num, col_num,
+                  input_value,
+                  auth_token=None, **kwargs):
+    """Sets a single cell from the worksheet.
+
+    Indexes are 1 based so the first cell in the worksheet is 1, 1.
+
+    Args:
+      spreadsheet_key: str, The unique ID of this containing spreadsheet. This
+                       can be the ID from the URL or as provided in a
+                       Spreadsheet entry.
+      worksheet_id: str, The unique ID of the worksheet in this spreadsheet
+                    whose cells we want. This can be obtained using
+                    WorksheetEntry's get_worksheet_id method.
+      row_num: int, The row of the cell that we want. Numbering starts with 1.
+      col_num: int, The column of the cell we want. Numbering starts with 1.
+      input_value: string, The value to set the cell to.
+      auth_token: An object which sets the Authorization HTTP header in its
+                  modify_request method. Recommended classes include
+                  gdata.gauth.ClientLoginToken and gdata.gauth.AuthSubToken
+                  among others. Represents the current user. Defaults to None
+                  and if None, this method will look for a value in the
+                  auth_token member of SpreadsheetsClient.
+    """
+    row = str(row_num)
+    col = str(col_num)
+    new_cell = gdata.spreadsheets.data.CellEntry(
+        cell=gdata.spreadsheets.data.Cell(row=row, col=col,
+                                          input_value=input_value))
+
+    return self.update(new_cell, auth_token=auth_token,
+                       uri=(CELL_URL % (spreadsheet_key, worksheet_id,
+                                        row_num, col_num)),
+                       **kwargs)
+
+  UpdateCell = update_cell
+
   def get_list_feed(self, spreadsheet_key, worksheet_id,
                     desired_class=gdata.spreadsheets.data.ListsFeed,
                     auth_token=None, **kwargs):
