@@ -34,6 +34,7 @@ SC_NAMESPACE_TEMPLATE = ('{http://schemas.google.com/'
                         'structuredcontent/2009}%s')
 SCP_NAMESPACE_TEMPLATE = ('{http://schemas.google.com/'
                          'structuredcontent/2009/products}%s')
+APP_NAMESPACE_TEMPLATE = ('{http://www.w3.org/2007/app}%s')
 
 # Content API for Shopping, general (sc) attributes
 
@@ -1034,6 +1035,7 @@ class ProductEntry(gdata.data.BatchEntry):
   """
 
   additional_image_link = [AdditionalImageLink]
+  adult = Adult
   author = Author
   attribute = [Attribute]
   availability = Availability
@@ -1099,6 +1101,7 @@ class ProductEntry(gdata.data.BatchEntry):
 
   GetBatchErrors = get_batch_errors
 
+# Error handling attributes
 
 class ErrorDomain(atom.core.XmlElement):
   """gd:domain element
@@ -1224,11 +1227,12 @@ class ProductFeed(gdata.data.BatchFeed):
 
   GetStartToken = get_start_token
 
+# General datafeed attributes
 
 class Edited(atom.core.XmlElement):
-  """sc:edited element
+  """app:edited element
   """
-  _qname = SC_NAMESPACE_TEMPLATE % 'edited'
+  _qname = APP_NAMESPACE_TEMPLATE % 'edited'
 
 
 class AttributeLanguage(atom.core.XmlElement):
@@ -1249,6 +1253,27 @@ class FeedType(atom.core.XmlElement):
   _qname = SC_NAMESPACE_TEMPLATE % 'feed_type'
 
 
+class FeedDestination(atom.core.XmlElement):
+  """sc:feed_destination element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'feed_destination'
+  dest = 'dest'
+  enabled = 'enabled'
+
+# File format
+
+class Delimiter(atom.core.XmlElement):
+  """sc:delimiter element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'delimiter'
+
+
+class Encoding(atom.core.XmlElement):
+  """sc:encoding element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'encoding'
+
+
 class UseQuotedFields(atom.core.XmlElement):
   """sc:use_quoted_fields element
   """
@@ -1259,14 +1284,104 @@ class FileFormat(atom.core.XmlElement):
   """sc:file_format element
   """
   _qname = SC_NAMESPACE_TEMPLATE % 'file_format'
+  encoding = Encoding
+  delimiter = Delimiter
   use_quoted_fields = UseQuotedFields
   format = 'format'
+
+# Processing status
+
+class Parameter(atom.core.XmlElement):
+  """sc:parameter element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'parameter'
+  txt = 'text'
+  value = 'value'
+
+
+class Example(atom.core.XmlElement):
+  """sc:example element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'example'
+  parameter = [Parameter]
+
+
+class FeedError(atom.core.XmlElement):
+  """sc:feed_error element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'feed_error'
+  count = 'count'
+  id = 'id'
+  line = 'line'
+  message = 'message'
+  example = [Example]
+
+
+class FeedErrors(atom.core.XmlElement):
+  """sc:feed_errors element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'feed_errors'
+  feed_error = [FeedError]
+
+
+class ItemsInserted(atom.core.XmlElement):
+  """sc:items_inserted element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'items_inserted'
+
+
+class ItemsProcessed(atom.core.XmlElement):
+  """sc:items_processed element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'items_processed'
 
 
 class ProcessingStatus(atom.core.XmlElement):
   """sc:processing_status element
   """
   _qname = SC_NAMESPACE_TEMPLATE % 'processing_status'
+  status = 'status'
+  feed_errors = FeedErrors
+  items_inserted = ItemsInserted
+  items_processed = ItemsProcessed
+
+# Fetch schedule
+
+class FetchUrl(atom.core.XmlElement):
+  """sc:fetch_url element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'fetch_url'
+  password = 'password'
+  username = 'username'
+
+
+class Hour(atom.core.XmlElement):
+  """sc:hour element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'hour'
+  timezone = 'timezone'
+
+
+class Weekday(atom.core.XmlElement):
+  """sc:weekday element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'weekday'
+
+
+class DayOfMonth(atom.core.XmlElement):
+  """sc:day_of_month element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'day_of_month'
+
+
+class FetchSchedule(atom.core.XmlElement):
+  """sc:fetch_schedule element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'fetch_schedule'
+  fetch_url = FetchUrl
+  hour = Hour
+  weekday = Weekday
+  day_of_month = DayOfMonth
 
 
 class DatafeedEntry(gdata.data.GDEntry):
@@ -1279,6 +1394,9 @@ class DatafeedEntry(gdata.data.GDEntry):
   processing_status = ProcessingStatus
   edited = Edited
   feed_type = FeedType
+  fetch_schedule = FetchSchedule
+  channel = Channel
+  feed_destination = FeedDestination
 
 
 class DatafeedFeed(gdata.data.GDFeed):
@@ -1288,6 +1406,7 @@ class DatafeedFeed(gdata.data.GDFeed):
   items_per_page = ItemsPerPage
   start_index = StartIndex
 
+# Client account attributes
 
 class AdultContent(atom.core.XmlElement):
   """sc:adult_content element
@@ -1322,12 +1441,20 @@ class AdwordsAccounts(atom.core.XmlElement):
   adwords_account = [AdwordsAccount]
 
 
+class AccountStatus(atom.core.XmlElement):
+  """sc:account_status element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'account_status'
+
+
 class ClientAccount(gdata.data.GDEntry):
   """A multiclient account entry."""
   adult_content = AdultContent
   internal_id = InternalId
   reviews_url = ReviewsUrl
   adwords_accounts = AdwordsAccounts
+  account_status = AccountStatus
+
 
 
 class ClientAccountFeed(gdata.data.GDFeed):
@@ -1416,6 +1543,7 @@ class IssueGroup(atom.core.XmlElement):
   issue = [Issue]
   country = 'country'
   id = 'id'
+  severity = 'severity'
 
 
 class IssueGroups(atom.core.XmlElement):
@@ -1424,9 +1552,35 @@ class IssueGroups(atom.core.XmlElement):
   issue_group = [IssueGroup]
 
 
+class IssueGroupReference(atom.core.XmlElement):
+  """sc:issue_group_reference
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'issue_group_reference'
+
+
+class Policy(atom.core.XmlElement):
+  """sc:policy element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'policy'
+  id = 'id'
+  earliest_reinstatement = 'earliest_reinstatement'
+  destination = 'destination'
+  country = 'country'
+  severity = 'severity'
+  issue_group_reference = [IssueGroupReference]
+
+
+class Policies(atom.core.XmlElement):
+  """sc:policies element
+  """
+  _qname = SC_NAMESPACE_TEMPLATE % 'policies'
+  policy = [Policy]
+
+
 class DataQualityEntry(gdata.data.GDEntry):
   """A Data Quality Feed entry."""
   issue_groups = IssueGroups
+  policies = Policies
 
 
 class DataQualityFeed(gdata.data.GDFeed):
